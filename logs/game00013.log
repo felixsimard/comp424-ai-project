@@ -1,0 +1,16 @@
+# Server version 0.08 running on felixs-mbp-2.lan:8123
+# Game ID: 13
+# Board class: pentago_twist.PentagoBoard
+# Timeout: 300000
+# First Move Timeout: 30000
+# Date: Mon Mar 15 10:05:16 EDT 2021
+# Player 1: Player-0, 'Human', running on felixs-mbp-2.lan
+# Player 2: Player-1, 'RandomPlayer', running on felixs-mbp-2.lan
+START Player-0 Human
+START Player-1 RandomPlayer
+0 0 0 0 0
+0 1 2 0 1
+0 3 0 1 0
+3 3 0 0 1
+GAMEOVER USER CANCEL UNDECIDED
+# Game ended: Mon Mar 15 10:11:22 EDT 2021

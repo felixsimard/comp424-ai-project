@@ -1,0 +1,22 @@
+1,RandomPlayer,Human,0,RandomPlayer,0,game00001.log,ILLEGAL MOVE: Player 1, Move: (3, 0), R/F: (2, 2)
+2,Human,RandomPlayer,1,RandomPlayer,1,game00002.log,ILLEGAL MOVE: Player 0, Move: (2, 2), R/F: (2, 2)
+3,Human,RandomPlayer,1,RandomPlayer,0,game00003.log,ILLEGAL MOVE: Player 0, Move: (3, 3), R/F: (0, 2)
+4,Human,xxxxxxxxx,GAMEOVER USER CANCEL UNDECIDED,NOBODY,0,game00004.log,USER CANCEL
+5,Human,RandomPlayer,1,RandomPlayer,0,game00005.log,ILLEGAL MOVE: Player 0, Move: (0, 2), R/F: (3, 3)
+6,Human,RandomPlayer,1,RandomPlayer,2,game00006.log,ILLEGAL MOVE: Player 0, Move: (2, 2), R/F: (3, 3)
+7,Human,RandomPlayer,1,RandomPlayer,2,game00007.log,ILLEGAL MOVE: Player 0, Move: (3, 0), R/F: (2, 2)
+8,Human,RandomPlayer,1,RandomPlayer,1,game00008.log,ILLEGAL MOVE: Player 0, Move: (3, 0), R/F: (2, 2)
+9,Human,RandomPlayer,1,RandomPlayer,0,game00009.log,ILLEGAL MOVE: Player 0, Move: (3, 3), R/F: (3, 3)
+10,Human,RandomPlayer,1,RandomPlayer,1,game00010.log,ILLEGAL MOVE: Player 0, Move: (3, 0), R/F: (2, 2)
+11,Human,RandomPlayer,1,RandomPlayer,0,game00011.log,ILLEGAL MOVE: Player 0, Move: (2, 2), R/F: (1, 2)
+12,Human,RandomPlayer,GAMEOVER USER CANCEL UNDECIDED,NOBODY,1,game00012.log,USER CANCEL
+13,Human,RandomPlayer,GAMEOVER USER CANCEL UNDECIDED,NOBODY,2,game00013.log,USER CANCEL
+14,Human,RandomPlayer,0,Human,4,game00014.log,
+15,RandomPlayer,260865674,1,260865674,15,game00015.log,
+16,260865674,RandomPlayer,1,RandomPlayer,15,game00016.log,
+17,RandomPlayer,260865674,1,260865674,15,game00017.log,
+18,RandomPlayer,260865674,1,260865674,15,game00018.log,
+20,260865674,260865674,1,260865674,15,game00020.log,
+21,260865674,260865674,1,260865674,15,game00021.log,
+22,260865674,260865674,1,260865674,15,game00022.log,
+23,RandomPlayer,260865674,1,260865674,15,game00023.log,
