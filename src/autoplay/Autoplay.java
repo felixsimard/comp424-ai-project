@@ -44,12 +44,12 @@ public class Autoplay {
             client1_pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
 
 //            ProcessBuilder client2_pb = new ProcessBuilder("java", "-cp", "bin", "-Xms520m", "-Xmx520m",
-//                    "boardgame.Client", "alpha_beta.AlphaBetaPlayer");
+//                    "boardgame.Client", "student_player.StudentPlayer");
             ProcessBuilder client2_pb = new ProcessBuilder("java", "-cp", "bin", "-Xms520m", "-Xmx520m",
-                    "boardgame.Client", "student_player.StudentPlayer");
+                    "boardgame.Client", "student_player.MonteCarloPlayer");
             client2_pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
 
-            for (int i = 0; i < n_games; i++) {
+            for (int i = 1; i < n_games+1; i++) {
                 System.out.println("Game " + i);
 
                 try {

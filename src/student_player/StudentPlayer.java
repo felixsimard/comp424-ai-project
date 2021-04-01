@@ -2,11 +2,14 @@ package student_player;
 
 import boardgame.Move;
 
+import pentago_twist.PentagoMove;
 import pentago_twist.PentagoPlayer;
 import pentago_twist.PentagoBoardState;
 
 /** A player file submitted by a student. */
 public class StudentPlayer extends PentagoPlayer {
+
+    public static boolean DEBUG_MODE = true;
 
     /**
      * You must modify this constructor to return your student number. This is
@@ -23,13 +26,23 @@ public class StudentPlayer extends PentagoPlayer {
      * make decisions.
      */
     public Move chooseMove(PentagoBoardState boardState) {
-        // You probably will make separate functions in MyTools.
-        // For example, maybe you'll need to load some pre-processed best opening
-        // strategies...
-        MyTools.getSomething();
 
-        // Is random the best you can do?
-        Move myMove = boardState.getRandomMove();
+        // start time
+        long start = System.currentTimeMillis();
+
+        // Determine if there is a simple move to win the game
+        WinNextHeuristic wnh = new WinNextHeuristic();
+        PentagoMove win_next_move = wnh.getWinNextMove(boardState);
+        if(win_next_move != null) {
+            MyTools.print("FOUND a winning move.");
+            return win_next_move;
+        }
+
+        // Find 'best' move
+        Move myMove = null;
+
+        // end time
+        long end = System.currentTimeMillis();
 
         // Return your move to be processed by the server.
         return myMove;
