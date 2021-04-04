@@ -1,11 +1,9 @@
 package student_player.mcts;
 
-import pentago_twist.PentagoBoard;
 import pentago_twist.PentagoBoardState;
 import pentago_twist.PentagoMove;
 import student_player.MyTools;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
@@ -16,7 +14,6 @@ public class MCTSState {
      * This MCTSState.java class aims to represent a particular PentagoBoardState along with a PentagoMove
      * to keep track of the visit count and win score for this state configuration. A MCTSState instance
      * is be stored within a MCTSNode which themselves construct the tree used in the Monte Carlo Tree Search.
-     *
      */
 
     private double score;
@@ -45,7 +42,7 @@ public class MCTSState {
      * Switch between players.
      */
     public void switchPlayer() {
-        if(this.playerno == PentagoBoardState.WHITE) {
+        if (this.playerno == PentagoBoardState.WHITE) {
             this.playerno = PentagoBoardState.BLACK; // white --> black
         } else {
             this.playerno = PentagoBoardState.WHITE; // black --> white
@@ -62,15 +59,16 @@ public class MCTSState {
     /**
      * Not put into great use, was trying to figure out how to avoid
      * repeating multiple same states in our search tree...
+     *
      * @param states
      * @param s
      * @return
      */
     public boolean stateAlreadySeen(ArrayList<MCTSState> states, MCTSState s) {
         boolean statesAreEqual = false;
-        for(MCTSState state : states) {
+        for (MCTSState state : states) {
             statesAreEqual = Arrays.deepEquals(s.getPbs().getBoard(), state.getPbs().getBoard());
-            if(statesAreEqual) {
+            if (statesAreEqual) {
                 return true;
             }
         }
@@ -81,12 +79,13 @@ public class MCTSState {
      * Expand the states for a node given the list of all possible moves
      * it can compute from this particular state.
      * Then, convert those states to nodes and them to search tree.
+     *
      * @return
      */
     public ArrayList<MCTSState> getExpandedNodeStates() {
         ArrayList<MCTSState> expanded_states = new ArrayList<>();
         ArrayList<PentagoMove> moves = this.pbs.getAllLegalMoves();
-        for(PentagoMove pm : moves) {
+        for (PentagoMove pm : moves) {
 
             PentagoBoardState pbs_cloned = (PentagoBoardState) pbs.clone();
             MCTSState new_state = new MCTSState(pbs_cloned, pm);
@@ -104,10 +103,11 @@ public class MCTSState {
 
     /**
      * Update the score at a node during backpropagation.
+     *
      * @param add_score
      */
     public void updateScore(double add_score) {
-        if(this.score != Integer.MAX_VALUE) {
+        if (this.score != Integer.MAX_VALUE) {
             this.score += add_score;
         }
     }

@@ -12,11 +12,12 @@ public class MyTools {
     }
 
     public static void print(String msg) {
-        if(StudentPlayer.DEBUG_MODE) {
-            System.out.println(msg);
+        if (StudentPlayer.DEBUG_MODE) {
+            System.out.println("- "+msg);
         }
         return;
     }
+
     public static void error(String error) {
         System.out.println("ERROR: " + error);
         return;
@@ -24,7 +25,7 @@ public class MyTools {
 
     public static int getOpponent(PentagoBoardState pbs) {
         int playing = pbs.getTurnPlayer();
-        if(playing == PentagoBoardState.WHITE) {
+        if (playing == PentagoBoardState.WHITE) {
             return PentagoBoardState.BLACK;
         } else {
             return PentagoBoardState.WHITE;
@@ -33,12 +34,12 @@ public class MyTools {
 
     public static int getRandomNumber(int min, int max) {
         Random r = new Random();
-        int random_int = r.nextInt(max-min) + min;
+        int random_int = r.nextInt(max - min) + min;
         return random_int;
     }
 
-    public static boolean isFirstMove(PentagoBoardState pbs) {
-        return pbs.getTurnNumber() == 0;
+    public static boolean isAgentFirstMove(PentagoBoardState pbs) {
+        return (pbs.getTurnNumber() == 0 && pbs.getTurnPlayer() == 0) || (pbs.getTurnNumber() == 1 && pbs.getTurnPlayer() == 1);
     }
 
     public static boolean hasTimeLeft(long current, long end) {

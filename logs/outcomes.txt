@@ -1,73 +1,24 @@
-1,RandomPlayer,Human,0,RandomPlayer,0,game00001.log,ILLEGAL MOVE: Player 1, Move: (3, 0), R/F: (2, 2)
-2,Human,RandomPlayer,1,RandomPlayer,1,game00002.log,ILLEGAL MOVE: Player 0, Move: (2, 2), R/F: (2, 2)
-3,Human,RandomPlayer,1,RandomPlayer,0,game00003.log,ILLEGAL MOVE: Player 0, Move: (3, 3), R/F: (0, 2)
-4,Human,xxxxxxxxx,GAMEOVER USER CANCEL UNDECIDED,NOBODY,0,game00004.log,USER CANCEL
-5,Human,RandomPlayer,1,RandomPlayer,0,game00005.log,ILLEGAL MOVE: Player 0, Move: (0, 2), R/F: (3, 3)
-6,Human,RandomPlayer,1,RandomPlayer,2,game00006.log,ILLEGAL MOVE: Player 0, Move: (2, 2), R/F: (3, 3)
-7,Human,RandomPlayer,1,RandomPlayer,2,game00007.log,ILLEGAL MOVE: Player 0, Move: (3, 0), R/F: (2, 2)
-8,Human,RandomPlayer,1,RandomPlayer,1,game00008.log,ILLEGAL MOVE: Player 0, Move: (3, 0), R/F: (2, 2)
-9,Human,RandomPlayer,1,RandomPlayer,0,game00009.log,ILLEGAL MOVE: Player 0, Move: (3, 3), R/F: (3, 3)
-10,Human,RandomPlayer,1,RandomPlayer,1,game00010.log,ILLEGAL MOVE: Player 0, Move: (3, 0), R/F: (2, 2)
-11,Human,RandomPlayer,1,RandomPlayer,0,game00011.log,ILLEGAL MOVE: Player 0, Move: (2, 2), R/F: (1, 2)
-12,Human,RandomPlayer,GAMEOVER USER CANCEL UNDECIDED,NOBODY,1,game00012.log,USER CANCEL
-13,Human,RandomPlayer,GAMEOVER USER CANCEL UNDECIDED,NOBODY,2,game00013.log,USER CANCEL
-14,Human,RandomPlayer,0,Human,4,game00014.log,
-15,RandomPlayer,260865674,1,260865674,15,game00015.log,
-16,260865674,RandomPlayer,1,RandomPlayer,15,game00016.log,
-17,RandomPlayer,260865674,1,260865674,15,game00017.log,
-18,RandomPlayer,260865674,1,260865674,15,game00018.log,
-20,260865674,260865674,1,260865674,15,game00020.log,
-21,260865674,260865674,1,260865674,15,game00021.log,
-22,260865674,260865674,1,260865674,15,game00022.log,
-23,RandomPlayer,260865674,1,260865674,15,game00023.log,
-24,RandomPlayer,260865674,0,RandomPlayer,0,game00024.log,TIMEOUT
-25,260865674,RandomPlayer,1,RandomPlayer,0,game00025.log,TIMEOUT
-26,RandomPlayer,260865674,0,RandomPlayer,0,game00026.log,TIMEOUT
-28,RandomPlayer,MonteCarlo 260865674,0,RandomPlayer,0,game00028.log,TIMEOUT
-30,RandomPlayer,MonteCarlo 260865674,0,RandomPlayer,0,game00030.log,TIMEOUT
-31,RandomPlayer,MonteCarlo 260865674,1,MonteCarlo 260865674,11,game00031.log,
-32,MonteCarlo 260865674,RandomPlayer,1,RandomPlayer,11,game00032.log,
-34,RandomPlayer,MonteCarlo 260865674,0,RandomPlayer,12,game00034.log,
-35,RandomPlayer,MonteCarlo 260865674,0,RandomPlayer,16,game00035.log,
-36,RandomPlayer,MonteCarlo 260865674,1,MonteCarlo 260865674,16,game00036.log,
-37,Human,RandomPlayer,0,Human,5,game00037.log,
-38,RandomPlayer,MonteCarlo 260865674,1,MonteCarlo 260865674,9,game00038.log,
-39,RandomPlayer,MonteCarlo 260865674,0,RandomPlayer,11,game00039.log,
-41,RandomPlayer,MonteCarlo 260865674,1,MonteCarlo 260865674,17,game00041.log,
-42,RandomPlayer,MonteCarlo 260865674,0,RandomPlayer,11,game00042.log,
-43,RL 260865674,Human,GAMEOVER USER CANCEL UNDECIDED,NOBODY,1,game00043.log,USER CANCEL
-48,RandomPlayer,MonteCarlo 260865674,1,MonteCarlo 260865674,15,game00048.log,
-49,RandomPlayer,MonteCarlo 260865674,1,MonteCarlo 260865674,12,game00049.log,
-50,RandomPlayer,MonteCarlo 260865674,1,MonteCarlo 260865674,10,game00050.log,
-51,RandomPlayer,MonteCarlo 260865674,1,MonteCarlo 260865674,12,game00051.log,
-52,RandomPlayer,MonteCarlo 260865674,1,MonteCarlo 260865674,13,game00052.log,
-53,RandomPlayer,MonteCarlo 260865674,0,RandomPlayer,13,game00053.log,
-54,RandomPlayer,MonteCarlo 260865674,0,RandomPlayer,13,game00054.log,
-55,RandomPlayer,MonteCarlo 260865674,0,RandomPlayer,12,game00055.log,
-56,RandomPlayer,MonteCarlo 260865674,0,RandomPlayer,14,game00056.log,
-57,RandomPlayer,MonteCarlo 260865674,1,MonteCarlo 260865674,14,game00057.log,
-58,RandomPlayer,MonteCarlo 260865674,1,MonteCarlo 260865674,11,game00058.log,
-59,RandomPlayer,MonteCarlo 260865674,1,MonteCarlo 260865674,11,game00059.log,
-60,RandomPlayer,MonteCarlo 260865674,1,MonteCarlo 260865674,11,game00060.log,
-61,RandomPlayer,MonteCarlo 260865674,1,MonteCarlo 260865674,11,game00061.log,
-62,RandomPlayer,MonteCarlo 260865674,1,MonteCarlo 260865674,11,game00062.log,
-63,RandomPlayer,MonteCarlo 260865674,1,MonteCarlo 260865674,11,game00063.log,
-64,RandomPlayer,MonteCarlo 260865674,1,MonteCarlo 260865674,11,game00064.log,
-65,RandomPlayer,MonteCarlo 260865674,1,MonteCarlo 260865674,9,game00065.log,
-66,RandomPlayer,MonteCarlo 260865674,1,MonteCarlo 260865674,16,game00066.log,
-67,RandomPlayer,MonteCarlo 260865674,1,MonteCarlo 260865674,12,game00067.log,
-68,RandomPlayer,MonteCarlo 260865674,1,MonteCarlo 260865674,12,game00068.log,
-70,RandomPlayer,MonteCarlo 260865674,1,MonteCarlo 260865674,11,game00070.log,
-73,RandomPlayer,MonteCarlo 260865674,0,RandomPlayer,11,game00073.log,
-74,RandomPlayer,MonteCarlo 260865674,GAMEOVER DRAW,NOBODY,18,game00074.log,
-76,RandomPlayer,MonteCarlo 260865674,0,RandomPlayer,10,game00076.log,
-78,RandomPlayer,MonteCarlo 260865674,1,MonteCarlo 260865674,16,game00078.log,
-79,RandomPlayer,MonteCarlo 260865674,1,MonteCarlo 260865674,14,game00079.log,
-81,MonteCarlo 260865674,RandomPlayer,1,RandomPlayer,16,game00081.log,
-82,RandomPlayer,MonteCarlo 260865674,1,MonteCarlo 260865674,14,game00082.log,
-83,MonteCarlo 260865674,RandomPlayer,0,MonteCarlo 260865674,6,game00083.log,
-84,MonteCarlo 260865674,RandomPlayer,0,MonteCarlo 260865674,5,game00084.log,
-85,MonteCarlo 260865674,RandomPlayer,0,MonteCarlo 260865674,11,game00085.log,
-86,MonteCarlo 260865674,RandomPlayer,0,MonteCarlo 260865674,10,game00086.log,
-91,MonteCarlo 260865674,RandomPlayer,0,MonteCarlo 260865674,14,game00091.log,
-95,MonteCarlo 260865674,RandomPlayer,0,MonteCarlo 260865674,9,game00095.log,
+1,MonteCarlo 260865674,RandomPlayer,0,MonteCarlo 260865674,14,game00001.log,
+2,RandomPlayer,MonteCarlo 260865674,1,MonteCarlo 260865674,15,game00002.log,
+3,MonteCarlo 260865674,RandomPlayer,0,MonteCarlo 260865674,15,game00003.log,
+4,RandomPlayer,MonteCarlo 260865674,1,MonteCarlo 260865674,12,game00004.log,
+5,MonteCarlo 260865674,RandomPlayer,0,MonteCarlo 260865674,8,game00005.log,
+6,MonteCarlo 260865674,RandomPlayer,0,MonteCarlo 260865674,9,game00006.log,
+7,RandomPlayer,MonteCarlo 260865674,1,MonteCarlo 260865674,15,game00007.log,
+8,MonteCarlo 260865674,RandomPlayer,0,MonteCarlo 260865674,8,game00008.log,
+9,RandomPlayer,MonteCarlo 260865674,0,RandomPlayer,12,game00009.log,
+10,MonteCarlo 260865674,RandomPlayer,1,RandomPlayer,13,game00010.log,
+11,RandomPlayer,MonteCarlo 260865674,1,MonteCarlo 260865674,14,game00011.log,
+12,RandomPlayer,MonteCarlo 260865674,1,MonteCarlo 260865674,9,game00012.log,
+13,RandomPlayer,MonteCarlo 260865674,0,RandomPlayer,15,game00013.log,
+14,RandomPlayer,MonteCarlo 260865674,1,MonteCarlo 260865674,14,game00014.log,
+15,RandomPlayer,MonteCarlo 260865674,1,MonteCarlo 260865674,10,game00015.log,
+16,RandomPlayer,MonteCarlo 260865674,1,MonteCarlo 260865674,14,game00016.log,
+17,RandomPlayer,MonteCarlo 260865674,1,MonteCarlo 260865674,11,game00017.log,
+18,RandomPlayer,MonteCarlo 260865674,1,MonteCarlo 260865674,15,game00018.log,
+19,RandomPlayer,MonteCarlo 260865674,1,MonteCarlo 260865674,8,game00019.log,
+20,MonteCarlo 260865674,RandomPlayer,0,MonteCarlo 260865674,7,game00020.log,
+21,RandomPlayer,MonteCarlo 260865674,1,MonteCarlo 260865674,11,game00021.log,
+22,RandomPlayer,MonteCarlo 260865674,0,RandomPlayer,13,game00022.log,
+23,RandomPlayer,MonteCarlo 260865674,1,MonteCarlo 260865674,14,game00023.log,
+24,MonteCarlo 260865674,RandomPlayer,0,MonteCarlo 260865674,13,game00024.log,

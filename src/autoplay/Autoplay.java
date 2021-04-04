@@ -49,7 +49,7 @@ public class Autoplay {
                     "boardgame.Client", "student_player.MonteCarloPlayer");
             client2_pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
 
-            for (int i = 1; i < n_games+1; i++) {
+            for (int i = 0; i < n_games; i++) {
                 System.out.println("Game " + i);
 
                 try {

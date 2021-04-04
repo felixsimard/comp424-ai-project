@@ -1,12 +1,40 @@
 # Server version 0.08 running on felixs-mbp-2.lan:8123
 # Game ID: 11
 # Board class: pentago_twist.PentagoBoard
-# Timeout: 300000
+# Timeout: 20000
 # First Move Timeout: 30000
-# Date: Mon Mar 15 10:01:57 EDT 2021
-# Player 1: Player-0, 'Human', running on felixs-mbp-2.lan
-# Player 2: Player-1, 'RandomPlayer', running on felixs-mbp-2.lan
-START Player-0 Human
-START Player-1 RandomPlayer
-GAMEOVER ILLEGAL MOVE: Player 0, Move: (2, 2), R/F: (1, 2) WINNER 1
-# Game ended: Mon Mar 15 10:02:03 EDT 2021
+# Date: Sun Apr 04 14:30:58 EDT 2021
+# Player 1: Player-0, 'RandomPlayer', running on localhost
+# Player 2: Player-1, 'MonteCarlo 260865674', running on localhost
+START Player-0 RandomPlayer
+START Player-1 MonteCarlo 260865674
+1 0 2 0 0
+2 5 3 1 1
+0 2 1 0 0
+0 3 3 1 1
+4 1 0 1 0
+1 1 1 0 1
+2 0 2 1 0
+2 3 3 1 1
+5 4 1 1 0
+3 1 0 0 1
+4 4 0 0 0
+0 4 3 0 1
+5 0 2 1 0
+5 3 1 1 1
+3 5 0 0 0
+3 2 3 0 1
+5 4 0 0 0
+5 3 3 0 1
+3 4 3 0 0
+4 0 2 0 1
+2 2 0 0 0
+0 1 1 1 1
+3 0 3 0 0
+1 2 0 0 1
+0 1 2 1 0
+2 4 0 0 1
+1 4 0 0 0
+0 2 1 1 1
+GAMEOVER WINNER 1
+# Game ended: Sun Apr 04 14:31:32 EDT 2021
