@@ -42,7 +42,7 @@ public class MonteCarloPlayer extends PentagoPlayer {
         // First Move
         if (MyTools.isAgentFirstMove(boardState)) {
             MyTools.print("Agent's first move. Use 30s.");
-            time_allowed = 15000; // allowed ~30 sec for the first move
+            time_allowed = 10000; // allowed ~30 sec for the first move
         }
 
         //------------------------

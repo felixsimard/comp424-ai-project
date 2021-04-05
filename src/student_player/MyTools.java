@@ -39,7 +39,7 @@ public class MyTools {
     }
 
     public static boolean isAgentFirstMove(PentagoBoardState pbs) {
-        return (pbs.getTurnNumber() == 0 && pbs.getTurnPlayer() == 0) || (pbs.getTurnNumber() == 1 && pbs.getTurnPlayer() == 1);
+        return pbs.getTurnNumber() == 0;
     }
 
     public static boolean hasTimeLeft(long current, long end) {

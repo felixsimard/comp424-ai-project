@@ -8,6 +8,8 @@ import student_player.MyTools;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Reference used during the construction of the MCTS classes:
@@ -15,16 +17,19 @@ import java.util.ArrayList;
  * + class lecture notes
  */
 
-public class MCTSExecuter implements Serializable {
+public class MCTSExecuter {
 
     // Constants
-    public static String AGENT_FILE_NAME = "./data/mctsagent.ser";
-    private static int INCR_SCORE = 200;
-    private static final double SCALING_CONSTANT = 1.41421356; // UCT scaling constant usually picked as being sqrt(2)
+    private static int INCR_SCORE = 100;
+    private static final double SCALING_CONSTANT = Math.sqrt(1); // UCT scaling constant
     private int OPPONENT;
     private long start_time;
     private int time_allowed;
     private int games_played = 0;
+
+    // Serialization
+    private static String TREE_FILE_NAME = "./data/tree.ser";
+    public Map<Integer, ArrayList<SerializableNode>> tree;
 
     /**
      * Constructor for our MCTS agent
@@ -32,6 +37,7 @@ public class MCTSExecuter implements Serializable {
     public MCTSExecuter() {
         super();
         MyTools.print("Initializing MCTSExecuter agent.");
+
     }
 
     /**
@@ -42,19 +48,24 @@ public class MCTSExecuter implements Serializable {
      */
     public Move getOptimalMove(PentagoBoardState pbs) {
 
+//         Load serialized tree
+//        MyTools.print("Size of tree: "+MCTSExecuter.loadTree().size());
+//        setTree(MCTSExecuter.loadTree());
+//         MCTSExecuter.showTree(tree);
+
+
         MCTSNode root = new MCTSNode(pbs, null); // init root node of our MCTS, with no children
         OPPONENT = MyTools.getOpponent(pbs);
         root.getNodeState().setPlayerno(OPPONENT);
-
 
         // Define end time to respect time allocated
         long setup_time = (System.currentTimeMillis() - start_time);
         long endtime = System.currentTimeMillis() + (time_allowed - setup_time);
 
-        int i = 0;
-        int depth = 0;
-        int max_depth = getMaxDepthAllowed(getTimeAllowed());
-        while (System.currentTimeMillis() < endtime || depth < max_depth) { // as long as we have time left to explore moves
+//        int depth = 0;
+//        int max_depth = getMaxDepthAllowed(getTimeAllowed());
+        // as long as we have time left to explore moves, and not reached a depth to far for computations
+        while (System.currentTimeMillis() < endtime) {
 
             // SELECTION
             MCTSNode promising = getMostPromisingNode(root);
@@ -76,19 +87,26 @@ public class MCTSExecuter implements Serializable {
             // BACKPROPAGATION
             backPropagate(to_explore, playout_result);
 
-//            MyTools.print("loop back"+i);
-            i++;
-
-            depth++;
-
         }
 
-        MyTools.print("Return best next move.");
+//        // Save/update tree
+//        ArrayList<MCTSNode> children_of_root = root.getNodeChildren();
+//        ArrayList<SerializableNode> sernodes = new ArrayList<>();
+//        MCTSState temp;
+//        for(MCTSNode c : children_of_root) {
+//            temp = c.getNodeState();
+//            sernodes.add(new SerializableNode(temp.getVisits(), temp.getScore(), temp.getPbs().hashCode(), temp.getPlayerno()));
+//        }
+//        tree.put(pbsclonedhash, sernodes);
+
+        // Serialize tree
+//        MCTSExecuter.serialize(tree, TREE_FILE_NAME);
 
         // Finally, determine node with the highest score.
         // This node will be used as our next move.
         MCTSNode chosen = root.getHighestScoreChild();
         PentagoMove next_move = chosen.getNodeState().getPm();
+
         return next_move;
 
     }
@@ -140,7 +158,7 @@ public class MCTSExecuter implements Serializable {
     }
 
     /**
-     * Run a simulation to determine outcome of a playout.
+     * Run a simulation/rollout to determine outcome of a playout.
      *
      * @param node
      * @return
@@ -187,14 +205,37 @@ public class MCTSExecuter implements Serializable {
     }
 
     /**
+     * Display contents of our serialized tree.
+     */
+    public static void showTree(Map<Integer, ArrayList<SerializableNode>> tree) {
+        for(Integer k : tree.keySet()) {
+            String key = k.toString();
+            String values = tree.get(k).toString();
+            MyTools.print("Key: "+key+", Values: " + values);
+        }
+    }
+
+    /**
+     * Load the serialized tree.
+     */
+    public static Map<Integer, ArrayList<SerializableNode>> loadTree() {
+        Map<Integer, ArrayList<SerializableNode>> tree = new HashMap<>();
+        tree = MCTSExecuter.deserialize(TREE_FILE_NAME, tree.getClass());
+        if(tree == null) {
+            return new HashMap<>();
+        }
+        return tree;
+
+    }
+
+    /**
      * Serialization and deserialization
      */
 
     /**
      * Deserialize method. Handle any return type.
      */
-    public <T> T deserialize(String filename, Class<T> type) {
-        MyTools.print("deserializing agent...");
+    public static <T> T deserialize(String filename, Class<T> type) {
         T agent = null;
         try {
             FileInputStream file = new FileInputStream(filename);
@@ -202,6 +243,8 @@ public class MCTSExecuter implements Serializable {
 
             // deserialize object and cast
             agent = (T) ois.readObject();
+
+            MyTools.print("Deserialized.");
 
             // close file and input streams
             ois.close();
@@ -220,7 +263,7 @@ public class MCTSExecuter implements Serializable {
      * Serialize method.
      * @return
      */
-    public void serialize(Object o, String filename) {
+    public static void serialize(Object o, String filename) {
         try {
             FileOutputStream file = new FileOutputStream(filename);
             ObjectOutputStream oos = new ObjectOutputStream(file);
@@ -232,20 +275,35 @@ public class MCTSExecuter implements Serializable {
             oos.close();
             file.close();
 
-            MyTools.print("Serialize agent\n");
+            MyTools.print("Serialized.");
 
         } catch (Exception e) {
             MyTools.error(e.getMessage());
         }
     }
 
+    /**
+     * Finding and returning serialized children for a given board state hashcode.
+     */
+    public SerializableNode getSerializedChild(int parent_hashcode, int child_hashcode) {
+        ArrayList<SerializableNode> children = tree.get(parent_hashcode);
+        if(children != null) {
+            for(SerializableNode sn : children) {
+                if(sn.getPbshash() == child_hashcode) {
+                    MyTools.print("Found serialized child.");
+                    return sn;
+                }
+            }
+        }
+        return null;
+    }
 
     /**
      * Monte Carlo Upper Confidence Tree Computations
      */
     //-------------------------------------------
     // Compute UCT
-    public static double computeUCT(int visit_at_node, double node_score, int total_visits) {
+    public double computeUCT(int visit_at_node, double node_score, int total_visits) {
         if (visit_at_node == 0) {
             return Integer.MAX_VALUE;
         }
@@ -256,11 +314,16 @@ public class MCTSExecuter implements Serializable {
     }
 
     // Select best child node to expand
-    public static MCTSNode getBestNodeUCT(MCTSNode n) {
+    public MCTSNode getBestNodeUCT(MCTSNode n) {
+
+        // Parent
         int visits_parents = n.getNodeState().getVisits();
+
+        // For comparison
         double best = Integer.MIN_VALUE;
         double curr;
         MCTSNode node = null;
+
         // Simply get all the children for given node, compute UCT for each, and select best one.
         ArrayList<MCTSNode> children = n.getNodeChildren();
         for (MCTSNode c : children) {
@@ -302,6 +365,13 @@ public class MCTSExecuter implements Serializable {
         return Integer.MAX_VALUE;
     }
 
+    public Map<Integer, ArrayList<SerializableNode>> getTree() {
+        return this.tree;
+    }
+    public void setTree(Map<Integer, ArrayList<SerializableNode>> t) {
+        this.tree = t;
+    }
+
     public int getNumGamesPlayed() {
         return this.games_played;
     }
@@ -311,9 +381,6 @@ public class MCTSExecuter implements Serializable {
      * Used for debugging and optimization.
      */
 
-//    public ArrayList<MCTSNode> getAllSearchTreeNodes() {
-//
-//    }
 
 
 }

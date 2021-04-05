@@ -4,6 +4,7 @@ import pentago_twist.PentagoBoardState;
 import pentago_twist.PentagoMove;
 import student_player.MyTools;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
@@ -57,25 +58,6 @@ public class MCTSState {
     }
 
     /**
-     * Not put into great use, was trying to figure out how to avoid
-     * repeating multiple same states in our search tree...
-     *
-     * @param states
-     * @param s
-     * @return
-     */
-    public boolean stateAlreadySeen(ArrayList<MCTSState> states, MCTSState s) {
-        boolean statesAreEqual = false;
-        for (MCTSState state : states) {
-            statesAreEqual = Arrays.deepEquals(s.getPbs().getBoard(), state.getPbs().getBoard());
-            if (statesAreEqual) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
      * Expand the states for a node given the list of all possible moves
      * it can compute from this particular state.
      * Then, convert those states to nodes and them to search tree.
@@ -83,9 +65,20 @@ public class MCTSState {
      * @return
      */
     public ArrayList<MCTSState> getExpandedNodeStates() {
+
+        // To hold all the expanded states to be returned
         ArrayList<MCTSState> expanded_states = new ArrayList<>();
-        ArrayList<PentagoMove> moves = this.pbs.getAllLegalMoves();
-        for (PentagoMove pm : moves) {
+
+        // Get all legal moves (some moves lead to the same board state)
+        ArrayList<PentagoMove> moves = pbs.getAllLegalMoves();
+
+        // Trim moves
+        ArrayList<PentagoMove> moves_trim = trimLegalMoves(moves);
+
+//        MyTools.print("Trimmed "+(moves.size() - moves_trim.size())+" moves.");
+
+        // trim all legal moves...
+        for (PentagoMove pm : moves_trim) {
 
             PentagoBoardState pbs_cloned = (PentagoBoardState) pbs.clone();
             MCTSState new_state = new MCTSState(pbs_cloned, pm);
@@ -99,6 +92,25 @@ public class MCTSState {
         }
 
         return expanded_states;
+    }
+
+    /**
+     * Trim moves from list which lead to same board state.
+     */
+    public ArrayList<PentagoMove> trimLegalMoves(ArrayList<PentagoMove> all_moves) {
+        ArrayList<PentagoMove> trimed_moves = new ArrayList<>();
+        ArrayList<String> seen_states = new ArrayList<>();
+        for(PentagoMove pm : all_moves) {
+            PentagoBoardState pbscloned = (PentagoBoardState) pbs.clone();
+            pbscloned.processMove(pm);
+            // If we have never seen this state, then add it to our temp states list
+            // and save the move as a possible move in our trimed list
+            if(!seen_states.contains(pbscloned.toString())) {
+                seen_states.add(pbscloned.toString());
+                trimed_moves.add(pm);
+            }
+        }
+        return trimed_moves;
     }
 
     /**
@@ -119,6 +131,8 @@ public class MCTSState {
     public void performRandomMove() {
         Random rand = new Random();
         ArrayList<PentagoMove> legalMoves = this.pbs.getAllLegalMoves();
+        // We can trim the set of all legal moves
+        legalMoves = trimLegalMoves(legalMoves);
         PentagoMove randomMove = legalMoves.get(rand.nextInt(legalMoves.size()));
         this.pbs.processMove(randomMove);
         switchPlayer();

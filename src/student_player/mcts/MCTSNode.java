@@ -4,6 +4,7 @@ import pentago_twist.PentagoBoardState;
 import pentago_twist.PentagoMove;
 import student_player.MyTools;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 public class MCTSNode {
