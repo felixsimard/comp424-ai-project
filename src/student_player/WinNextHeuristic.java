@@ -2,13 +2,14 @@ package student_player;
 
 import pentago_twist.PentagoBoardState;
 import pentago_twist.PentagoMove;
+import student_player.mcts.MCTSExecuter;
 
 import java.util.ArrayList;
 
 public class WinNextHeuristic {
 
     public WinNextHeuristic() {
-        super(); // nothing to initialize
+        super();
     }
 
     /**
@@ -17,17 +18,15 @@ public class WinNextHeuristic {
      * @return
      */
     public PentagoMove getWinNextMove(PentagoBoardState pbs) {
-
         // Fetch all legal moves
-        ArrayList<PentagoMove> legal_moves = pbs.getAllLegalMoves();
-
-        for(PentagoMove pm : legal_moves) {
+        ArrayList<PentagoMove> all_moves = pbs.getAllLegalMoves();
+        for(PentagoMove pm : all_moves) {
             // Perform possible move on clone
             PentagoBoardState pbs_clone = (PentagoBoardState) pbs.clone();
             pbs_clone.processMove(pm);
-
             // Check if moves makes you win
             if(pbs_clone.getWinner() == pbs.getTurnPlayer()) {
+                // if you can win with this move, use it!
                 return pm;
             }
         }

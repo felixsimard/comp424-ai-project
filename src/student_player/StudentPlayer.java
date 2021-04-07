@@ -5,11 +5,10 @@ import boardgame.Move;
 import pentago_twist.PentagoMove;
 import pentago_twist.PentagoPlayer;
 import pentago_twist.PentagoBoardState;
+import student_player.mcts.MCTSExecuter;
 
 /** A player file submitted by a student. */
 public class StudentPlayer extends PentagoPlayer {
-
-    public static boolean DEBUG_MODE = true;
 
     /**
      * You must modify this constructor to return your student number. This is
@@ -27,24 +26,43 @@ public class StudentPlayer extends PentagoPlayer {
      */
     public Move chooseMove(PentagoBoardState boardState) {
 
-        // start time
-        long start = System.currentTimeMillis();
+        // Timing setup
+        long start_time = System.currentTimeMillis();
+        int time_allowed = MyTools.REGULAR_MOVE_TIME;
 
-        // Determine if there is a simple move to win the game
+        // First Move (allowed ~30s)
+        if (MyTools.isAgentFirstMove(boardState)) {
+            MyTools.print("Agent's first move.");
+            time_allowed = MyTools.FIRST_MOVE_TIME;
+        }
+
+        // Determine if there is a simple move to win the game.
         WinNextHeuristic wnh = new WinNextHeuristic();
         PentagoMove win_next_move = wnh.getWinNextMove(boardState);
-        if(win_next_move != null) {
-            MyTools.print("FOUND a winning move.");
+        if (win_next_move != null) {
+            MyTools.print("Found a win-on-next move.");
             return win_next_move;
         }
 
-        // Find 'best' move
-        Move myMove = null;
+        // Determine if our opponent could win on the next move. If could, block opponent.
+        LoseNextHeuristic lnh = new LoseNextHeuristic();
+        PentagoMove lose_next_move = lnh.getLoseNextMove(boardState);
+        if(lose_next_move != null) {
+            MyTools.print("Trying to avoid a loss by blocking opponent.");
+            return lose_next_move;
+        }
 
-        // end time
-        long end = System.currentTimeMillis();
+        // MCTS - Find optimal move
+        MyTools.print("Run MCTS agent.");
+        MCTSExecuter agent = new MCTSExecuter();
+        agent.setStartTime(start_time);
+        agent.setTimeAllowed(time_allowed);
 
-        // Return your move to be processed by the server.
+        Move myMove = agent.getOptimalMove(boardState);
+
+        MyTools.print(String.format("Found move in %f", (System.currentTimeMillis() - start_time) / 1000f));
+
         return myMove;
+
     }
 }

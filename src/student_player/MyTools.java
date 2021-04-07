@@ -7,13 +7,17 @@ import java.util.Random;
 
 public class MyTools {
 
+    public static boolean DEBUG_MODE = true;
+    public static int FIRST_MOVE_TIME = 12000;
+    public static int REGULAR_MOVE_TIME = 1950;
+
     public static double getSomething() {
         return Math.random();
     }
 
     public static void print(String msg) {
-        if (StudentPlayer.DEBUG_MODE) {
-            System.out.println("- "+msg);
+        if (DEBUG_MODE) {
+            System.out.println("- " + msg);
         }
         return;
     }
@@ -32,6 +36,10 @@ public class MyTools {
         }
     }
 
+    public static int getAgent(PentagoBoardState pbs) {
+        return pbs.getTurnPlayer();
+    }
+
     public static int getRandomNumber(int min, int max) {
         Random r = new Random();
         int random_int = r.nextInt(max - min) + min;
@@ -40,10 +48,6 @@ public class MyTools {
 
     public static boolean isAgentFirstMove(PentagoBoardState pbs) {
         return pbs.getTurnNumber() == 0;
-    }
-
-    public static boolean hasTimeLeft(long current, long end) {
-        return end - current > 0;
     }
 
 }

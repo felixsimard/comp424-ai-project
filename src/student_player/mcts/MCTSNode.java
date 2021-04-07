@@ -3,25 +3,18 @@ package student_player.mcts;
 import pentago_twist.PentagoBoardState;
 import pentago_twist.PentagoMove;
 import student_player.MyTools;
-
-import java.io.Serializable;
 import java.util.ArrayList;
 
 public class MCTSNode {
 
+    // Basic node tree attributes (parent, children, state)
     private MCTSNode parent = null;
-    private MCTSState state = null;
+    private MCTSState state;
     private ArrayList<MCTSNode> children = new ArrayList<>();
 
     /**
-     * Constructors
+     * Constructors needed based on the different ways we will initialize our MCTS nodes.
      */
-    public MCTSNode(MCTSNode p, MCTSState s, ArrayList<MCTSNode> c) {
-        this.parent = p;
-        this.state = s;
-        this.children = c;
-    }
-
     public MCTSNode(MCTSState s) {
         this.state = s;
     }
@@ -40,16 +33,12 @@ public class MCTSNode {
     }
 
     /**
-     * Methods
-     */
-
-    /**
-     * Compute the node with the highest sch
-     *
+     * Retrieve the 'best' node to play after finishing rollout and backpropagation.
+     * Choose child with the highest visits score.
      * @return
      */
-    public MCTSNode getHighestScoreChild() {
-        int highest = 0; // init highest score
+    public MCTSNode getBestChild() {
+        int highest = 0; // init highest visits count
         MCTSNode node = null; // to be returned
         int v;
         ArrayList<MCTSNode> children = this.getNodeChildren(); // list current node's children
@@ -65,40 +54,18 @@ public class MCTSNode {
     }
 
     /**
-     * Simply get a random child (used in simulation step).
-     *
-     * @return
-     */
-    public MCTSNode getChildRandom() {
-        int num_childs = this.getNumberOfChildren();
-        int selected = MyTools.getRandomNumber(0, num_childs);
-        ArrayList<MCTSNode> children = this.getNodeChildren();
-        return children.get(selected);
-    }
-
-    public int getNumberOfChildren() {
-        return this.children.size();
-    }
-
-    /**
      * Getters and setters
      */
+
+    // State
     public MCTSState getNodeState() {
         return this.state;
     }
 
+    // Parent
     public MCTSNode getNodeParent() {
         return this.parent;
     }
-
-    public ArrayList<MCTSNode> getNodeChildren() {
-        return this.children;
-    }
-
-    public void setNodeState(MCTSState s) {
-        this.state = s;
-    }
-
     public void setNodeParent(MCTSNode p) {
         this.parent = p;
     }
@@ -114,6 +81,27 @@ public class MCTSNode {
         for (MCTSNode c : children) {
             this.children.add(c);
         }
+    }
+
+    public ArrayList<MCTSNode> getNodeChildren() {
+        return this.children;
+    }
+
+
+    /**
+     * Simply get a random child (used in rollout step).
+     * @return
+     */
+    public MCTSNode getChildRandom() {
+        int num_childs = getNumberOfChildren();
+        // fetch a random int to select random child from array list
+        int selected = MyTools.getRandomNumber(0, num_childs);
+        ArrayList<MCTSNode> children = getNodeChildren();
+        return children.get(selected);
+    }
+
+    public int getNumberOfChildren() {
+        return this.children.size();
     }
 
 

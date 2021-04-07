@@ -43,10 +43,10 @@ public class Autoplay {
                     "boardgame.Client", "pentago_twist.RandomPentagoPlayer");
             client1_pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
 
-//            ProcessBuilder client2_pb = new ProcessBuilder("java", "-cp", "bin", "-Xms520m", "-Xmx520m",
-//                    "boardgame.Client", "student_player.StudentPlayer");
             ProcessBuilder client2_pb = new ProcessBuilder("java", "-cp", "bin", "-Xms520m", "-Xmx520m",
-                    "boardgame.Client", "student_player.MonteCarloPlayer");
+                    "boardgame.Client", "student_player.StudentPlayer");
+//            ProcessBuilder client2_pb = new ProcessBuilder("java", "-cp", "bin", "-Xms520m", "-Xmx520m",
+//                    "boardgame.Client", "student_player.MonteCarloPlayer");
             client2_pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
 
             for (int i = 0; i < n_games; i++) {

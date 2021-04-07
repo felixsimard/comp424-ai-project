@@ -23,7 +23,6 @@ public class MCTSState {
     private PentagoBoardState pbs;
     private int playerno;
 
-
     /**
      * Constructors
      */
@@ -40,21 +39,22 @@ public class MCTSState {
     }
 
     /**
-     * Switch between players.
+     * Trim moves from list which lead to same board state.
      */
-    public void switchPlayer() {
-        if (this.playerno == PentagoBoardState.WHITE) {
-            this.playerno = PentagoBoardState.BLACK; // white --> black
-        } else {
-            this.playerno = PentagoBoardState.WHITE; // black --> white
+    public static ArrayList<PentagoMove> trimLegalMoves(PentagoBoardState pbs, ArrayList<PentagoMove> all_moves) {
+        ArrayList<PentagoMove> trimmed_moves = new ArrayList<>();
+        ArrayList<String> seen_states = new ArrayList<>();
+        for(PentagoMove pm : all_moves) {
+            PentagoBoardState pbscloned = (PentagoBoardState) pbs.clone();
+            pbscloned.processMove(pm);
+            // If we have never seen this state, then add it to our temp states list
+            // and save the move as a possible move in our trimmed list
+            if(!seen_states.contains(pbscloned.toString())) {
+                seen_states.add(pbscloned.toString());
+                trimmed_moves.add(pm);
+            }
         }
-    }
-
-    /**
-     * Simple method to update the visits counts of nodes during backpropagation.
-     */
-    public void incrVists() {
-        this.visits++;
+        return trimmed_moves;
     }
 
     /**
@@ -70,24 +70,23 @@ public class MCTSState {
         ArrayList<MCTSState> expanded_states = new ArrayList<>();
 
         // Get all legal moves (some moves lead to the same board state)
-        ArrayList<PentagoMove> moves = pbs.getAllLegalMoves();
+        ArrayList<PentagoMove> all_moves = pbs.getAllLegalMoves();
 
-        // Trim moves
-        ArrayList<PentagoMove> moves_trim = trimLegalMoves(moves);
+        // Trim moves to reduce branching factor
+        ArrayList<PentagoMove> trim_moves = MCTSState.trimLegalMoves(pbs, all_moves);
 
-//        MyTools.print("Trimmed "+(moves.size() - moves_trim.size())+" moves.");
+        for (PentagoMove pm : trim_moves) { // for each possible move, clone pbs, process move, add state to list
 
-        // trim all legal moves...
-        for (PentagoMove pm : moves_trim) {
-
+            // Clone
             PentagoBoardState pbs_cloned = (PentagoBoardState) pbs.clone();
-            MCTSState new_state = new MCTSState(pbs_cloned, pm);
+            MCTSState resulting_state = new MCTSState(pbs_cloned, pm);
 
-            new_state.setPlayerno(MyTools.getOpponent(pbs));
-            new_state.getPbs().processMove(pm); // play the possible legal move from this state
+            // play the possible legal move from this state
+            resulting_state.setPlayerno(MyTools.getOpponent(pbs));
+            resulting_state.getPbs().processMove(pm);
 
             // Add state to list of states derived from current node
-            expanded_states.add(new_state);
+            expanded_states.add(resulting_state);
 
         }
 
@@ -95,47 +94,45 @@ public class MCTSState {
     }
 
     /**
-     * Trim moves from list which lead to same board state.
-     */
-    public ArrayList<PentagoMove> trimLegalMoves(ArrayList<PentagoMove> all_moves) {
-        ArrayList<PentagoMove> trimed_moves = new ArrayList<>();
-        ArrayList<String> seen_states = new ArrayList<>();
-        for(PentagoMove pm : all_moves) {
-            PentagoBoardState pbscloned = (PentagoBoardState) pbs.clone();
-            pbscloned.processMove(pm);
-            // If we have never seen this state, then add it to our temp states list
-            // and save the move as a possible move in our trimed list
-            if(!seen_states.contains(pbscloned.toString())) {
-                seen_states.add(pbscloned.toString());
-                trimed_moves.add(pm);
-            }
-        }
-        return trimed_moves;
-    }
-
-    /**
      * Update the score at a node during backpropagation.
-     *
      * @param add_score
      */
     public void updateScore(double add_score) {
-        if (this.score != Integer.MAX_VALUE) {
+        if (this.score != Integer.MAX_VALUE) { // avoid overflow
             this.score += add_score;
         }
     }
 
     /**
-     * Select and perform a random move from a current board state.
-     * Used during the simulation step.
+     * Select and play a random move from a current board state.
+     * Used during the rollout step.
      */
-    public void performRandomMove() {
+    public void playRandomMove() {
         Random rand = new Random();
         ArrayList<PentagoMove> legalMoves = this.pbs.getAllLegalMoves();
         // We can trim the set of all legal moves
-        legalMoves = trimLegalMoves(legalMoves);
+        legalMoves = MCTSState.trimLegalMoves(pbs, legalMoves);
         PentagoMove randomMove = legalMoves.get(rand.nextInt(legalMoves.size()));
         this.pbs.processMove(randomMove);
         switchPlayer();
+    }
+
+    /**
+     * Switch between players.
+     */
+    public void switchPlayer() {
+        if (this.playerno == PentagoBoardState.WHITE) {
+            this.playerno = PentagoBoardState.BLACK; // white --> black
+        } else {
+            this.playerno = PentagoBoardState.WHITE; // black --> white
+        }
+    }
+
+    /**
+     * Simple method to update the visits counts of nodes during backpropagation.
+     */
+    public void updateVisits() {
+        this.visits++;
     }
 
 

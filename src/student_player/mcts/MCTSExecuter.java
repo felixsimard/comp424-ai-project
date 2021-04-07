@@ -8,6 +8,7 @@ import student_player.MyTools;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,6 +24,7 @@ public class MCTSExecuter {
     private static int INCR_SCORE = 100;
     private static final double SCALING_CONSTANT = Math.sqrt(1); // UCT scaling constant
     private int OPPONENT;
+    private int AGENT;
     private long start_time;
     private int time_allowed;
     private int games_played = 0;
@@ -48,63 +50,70 @@ public class MCTSExecuter {
      */
     public Move getOptimalMove(PentagoBoardState pbs) {
 
-//         Load serialized tree
-//        MyTools.print("Size of tree: "+MCTSExecuter.loadTree().size());
-//        setTree(MCTSExecuter.loadTree());
-//         MCTSExecuter.showTree(tree);
-
-
-        MCTSNode root = new MCTSNode(pbs, null); // init root node of our MCTS, with no children
-        OPPONENT = MyTools.getOpponent(pbs);
-        root.getNodeState().setPlayerno(OPPONENT);
+        /*
+        // Load serialized tree
+        MyTools.print("Size of tree: " + MCTSExecuter.loadTree().size());
+        setTree(MCTSExecuter.loadTree());
+        MCTSExecuter.showTree(tree);
+        */
 
         // Define end time to respect time allocated
-        long setup_time = (System.currentTimeMillis() - start_time);
-        long endtime = System.currentTimeMillis() + (time_allowed - setup_time);
+        long endtime = start_time + time_allowed;
 
-//        int depth = 0;
-//        int max_depth = getMaxDepthAllowed(getTimeAllowed());
-        // as long as we have time left to explore moves, and not reached a depth to far for computations
-        while (System.currentTimeMillis() < endtime) {
+        // Init root node of our MCTS, with no children
+        MCTSNode root = new MCTSNode(pbs, null);
+        OPPONENT = MyTools.getOpponent(pbs);
+        AGENT = MyTools.getAgent(pbs);
+        root.getNodeState().setPlayerno(OPPONENT);
+
+        while (System.currentTimeMillis() < endtime) { // given time allowed at each move
+
+            int playout_result;
 
             // SELECTION
-            MCTSNode promising = getMostPromisingNode(root);
+            MCTSNode selected = select(root);
 
             // EXPANSION
-            int expanded_winner = promising.getNodeState().getPbs().getWinner();
-            if (expanded_winner == Board.NOBODY) { // check if this is not a leaf node (ie: if there is no winner yet)
-                expandPromisingNode(promising);
+            int expanded_winner = selected.getNodeState().getPbs().getWinner();
+            if (expanded_winner == Board.NOBODY) {
+                // If this is not a leaf node (ie: if there is no winner yet for this game), expand search tree.
+                // This will expand the tree states from the promising node
+                expand(selected);
             }
 
-            // SIMULATION
-            MCTSNode to_explore = promising;
-            // Might have some child nodes if we expanded this node's states in the previous step
-            if (promising.getNodeChildren().size() > 0) {
-                to_explore = promising.getChildRandom(); // CAN MODIFY THIS SELECTION
+            // ROLLOUT
+            MCTSNode simulate_node = selected;
+            ArrayList<MCTSNode> promising_children = selected.getNodeChildren();
+            if (promising_children.size() > 0) { // maybe have children by expansion at previous step
+                // simplest heuristic, get a random child of the promising expanded node to rollout
+                simulate_node = selected.getChildRandom();
             }
-            int playout_result = simulatePlayout(to_explore);
+            playout_result = rollout(simulate_node); // play a simulation
 
             // BACKPROPAGATION
-            backPropagate(to_explore, playout_result);
+            backpropagate(simulate_node, playout_result);
 
         }
 
-//        // Save/update tree
-//        ArrayList<MCTSNode> children_of_root = root.getNodeChildren();
-//        ArrayList<SerializableNode> sernodes = new ArrayList<>();
-//        MCTSState temp;
-//        for(MCTSNode c : children_of_root) {
-//            temp = c.getNodeState();
-//            sernodes.add(new SerializableNode(temp.getVisits(), temp.getScore(), temp.getPbs().hashCode(), temp.getPlayerno()));
-//        }
-//        tree.put(pbsclonedhash, sernodes);
+        /* Exploring the use of serialization to persist tree knowledge across moves/games (not used).
+        // Save/update tree
+        ArrayList<MCTSNode> children_of_root = root.getNodeChildren();
+        ArrayList<SerializableNode> sernodes = new ArrayList<>();
+        MCTSState temp;
+        for(MCTSNode c : children_of_root) {
+            temp = c.getNodeState();
+            sernodes.add(new SerializableNode(temp.getVisits(), temp.getScore(), temp.getPbs().hashCode(), temp.getPlayerno()));
+        }
+        tree.put(pbsclonedhash, sernodes);
 
-        // Serialize tree
-//        MCTSExecuter.serialize(tree, TREE_FILE_NAME);
+         Serialize tree
+        MCTSExecuter.serialize(tree, TREE_FILE_NAME);
+         */
 
-        // Finally, determine node with the highest score.
+
+        // Finally, determine node with the highest score (visits).
         // This node will be used as our next move.
-        MCTSNode chosen = root.getHighestScoreChild();
+        MCTSNode chosen = root.getBestChild();
         PentagoMove next_move = chosen.getNodeState().getPm();
 
         return next_move;
@@ -120,29 +129,65 @@ public class MCTSExecuter {
      */
 
     /**
-     * Simply determine the "best" children of a give node to explore based on UCT computations.
-     *
+     * Determine the most promising child (tree leaf) from a given start node to explore based on UCT computations.
      * @param start_node
      * @return
      */
-    public MCTSNode getMostPromisingNode(MCTSNode start_node) {
+    public MCTSNode select(MCTSNode start_node) {
         MCTSNode n = start_node;
-        // get all the way down to a leaf node...
+        // get all the way down to a leaf node in our mcts tree
         while (n.getNodeChildren().size() != 0) { // as long as we have children to select from to expand
             n = getBestNodeUCT(n); // will recurse on the most promising node at each iteration!
         }
+        // return leaf node from our mcts tree which has the best UCT value
         return n;
     }
 
     /**
+     * Monte Carlo Upper Confidence Tree Computations.
+     */
+    //-------------------------------------------
+    // Compute UCT
+    public double computeUCT(int visit_at_node, double node_score, int total_visits) {
+        if (visit_at_node == 0) {
+            return Integer.MAX_VALUE;
+        }
+        double exploitation = (node_score) / (double) visit_at_node;
+        double exploration = SCALING_CONSTANT * Math.sqrt(Math.log(total_visits) / (double) visit_at_node);
+        double uct_value = exploitation + exploration;
+        return uct_value;
+    }
+
+    // Select best child node to expand
+    public MCTSNode getBestNodeUCT(MCTSNode n) {
+        // Parent
+        int visits_parents = n.getNodeState().getVisits();
+        // For comparison
+        double best = Integer.MIN_VALUE;
+        double curr;
+        MCTSNode node = null;
+        // Simply get all the children for given node, compute UCT for each, and select best one.
+        ArrayList<MCTSNode> children = n.getNodeChildren();
+        for (MCTSNode c : children) {
+            curr = computeUCT(c.getNodeState().getVisits(), c.getNodeState().getScore(), visits_parents);
+            if (curr > best) { // if better than current best, save node
+                best = curr;
+                node = c;
+            }
+        }
+        return node;
+    }
+    //-------------------------------------------
+
+    /**
      * Expand a promising node which is not a leaf (no winner yet).
-     *
      * @param node
      */
-    public void expandPromisingNode(MCTSNode node) {
+    //-------------------------------------------
+    public void expand(MCTSNode node) {
+        // Produce list of expanded states from the given node (performing all moves, adding to search tree the resulting states)
         ArrayList<MCTSState> expanded_states = node.getNodeState().getExpandedNodeStates();
         for (MCTSState s : expanded_states) {
-
             // For each expanded node states, add them to the monte carlo search tree
             MCTSNode n = new MCTSNode(s);
             n.setNodeParent(node);
@@ -153,29 +198,35 @@ public class MCTSExecuter {
             ArrayList<MCTSNode> children = node.getNodeChildren();
             children.add(n);
             node.setNodeChildren(children);
-
         }
+        // now, our 'node' has the expanded nodes as its children
     }
+    //-------------------------------------------
 
     /**
-     * Run a simulation/rollout to determine outcome of a playout.
-     *
+     * Run a simulation to determine outcome of a rollout.
      * @param node
      * @return
      */
-    public int simulatePlayout(MCTSNode node) {
+    //-------------------------------------------
+    public int rollout(MCTSNode node) {
+
+        // Temp node and state
         MCTSNode temp_node = new MCTSNode(node);
         MCTSState temp_state = temp_node.getNodeState();
 
-        // Determine a winner from a playout of random moves
+        // Determine a winner from a rollout of random moves
         int winner = temp_state.getPbs().getWinner();
         while (winner == Board.NOBODY) {
             temp_state.switchPlayer();
-            temp_state.performRandomMove(); // use random moves
-            winner = temp_state.getPbs().getWinner(); // update winner
+            // play random moves
+            temp_state.playRandomMove();
+            // update winner
+            winner = temp_state.getPbs().getWinner();
         }
 
         // Determine winner and set scores to respective node states.
+        // Set Integer.MAX_VALUE to node state if our agent won, Integer.MIN_VALUE
         if (winner == OPPONENT) {
             temp_node.getNodeParent().getNodeState().setScore(Integer.MIN_VALUE);
         } else {
@@ -184,17 +235,18 @@ public class MCTSExecuter {
 
         return winner;
     }
+    //-------------------------------------------
 
     /**
      * Perform backprogation, updating visits and score values of nodes involved in a certain playout.
-     *
      * @param node
      * @param playerNo
      */
-    public void backPropagate(MCTSNode node, int playerNo) { // playerNo represents the winner from the playout
+    //-------------------------------------------
+    public void backpropagate(MCTSNode node, int playerNo) { // playerNo represents the winner from the playout
         MCTSNode temp = node; // use temp as a pointer for current visiting node
         while (temp != null) { // all the way back up to root of our MCTS
-            temp.getNodeState().incrVists(); // update visit scores for nodes used in playout
+            temp.getNodeState().updateVisits(); // update visit scores for nodes used in playout
             if (temp.getNodeState().getPlayerno() == playerNo) {
                 // increment score for winning player at each node along path
                 temp.getNodeState().updateScore(INCR_SCORE);
@@ -203,15 +255,44 @@ public class MCTSExecuter {
             temp = temp.getNodeParent();
         }
     }
+    //-------------------------------------------
+
+    /**
+     * Getters and setters for this class.
+     */
+
+    public int getTimeAllowed() {
+        return time_allowed;
+    }
+
+    public long getStartTime() {
+        return start_time;
+    }
+
+    public void setStartTime(long start_time) {
+        this.start_time = start_time;
+    }
+
+    public void setTimeAllowed(int time_allowed) {
+        this.time_allowed = time_allowed;
+    }
+
+
+    //-------------------------------------------
+
+    /**
+     * Serialization and deserialization exploration.
+     * Not used in the final implementation, but left in the code to show exploration work done.
+     */
 
     /**
      * Display contents of our serialized tree.
      */
     public static void showTree(Map<Integer, ArrayList<SerializableNode>> tree) {
-        for(Integer k : tree.keySet()) {
+        for (Integer k : tree.keySet()) {
             String key = k.toString();
             String values = tree.get(k).toString();
-            MyTools.print("Key: "+key+", Values: " + values);
+            MyTools.print("Key: " + key + ", Values: " + values);
         }
     }
 
@@ -221,16 +302,20 @@ public class MCTSExecuter {
     public static Map<Integer, ArrayList<SerializableNode>> loadTree() {
         Map<Integer, ArrayList<SerializableNode>> tree = new HashMap<>();
         tree = MCTSExecuter.deserialize(TREE_FILE_NAME, tree.getClass());
-        if(tree == null) {
+        if (tree == null) {
             return new HashMap<>();
         }
         return tree;
 
     }
 
-    /**
-     * Serialization and deserialization
-     */
+    public Map<Integer, ArrayList<SerializableNode>> getTree() {
+        return this.tree;
+    }
+
+    public void setTree(Map<Integer, ArrayList<SerializableNode>> t) {
+        this.tree = t;
+    }
 
     /**
      * Deserialize method. Handle any return type.
@@ -261,6 +346,7 @@ public class MCTSExecuter {
 
     /**
      * Serialize method.
+     *
      * @return
      */
     public static void serialize(Object o, String filename) {
@@ -287,9 +373,9 @@ public class MCTSExecuter {
      */
     public SerializableNode getSerializedChild(int parent_hashcode, int child_hashcode) {
         ArrayList<SerializableNode> children = tree.get(parent_hashcode);
-        if(children != null) {
-            for(SerializableNode sn : children) {
-                if(sn.getPbshash() == child_hashcode) {
+        if (children != null) {
+            for (SerializableNode sn : children) {
+                if (sn.getPbshash() == child_hashcode) {
                     MyTools.print("Found serialized child.");
                     return sn;
                 }
@@ -297,90 +383,6 @@ public class MCTSExecuter {
         }
         return null;
     }
-
-    /**
-     * Monte Carlo Upper Confidence Tree Computations
-     */
-    //-------------------------------------------
-    // Compute UCT
-    public double computeUCT(int visit_at_node, double node_score, int total_visits) {
-        if (visit_at_node == 0) {
-            return Integer.MAX_VALUE;
-        }
-        double exploitation = (node_score) / (double) visit_at_node;
-        double exploration = SCALING_CONSTANT * Math.sqrt(Math.log(total_visits) / (double) visit_at_node);
-        double uct_value = exploitation + exploration;
-        return uct_value;
-    }
-
-    // Select best child node to expand
-    public MCTSNode getBestNodeUCT(MCTSNode n) {
-
-        // Parent
-        int visits_parents = n.getNodeState().getVisits();
-
-        // For comparison
-        double best = Integer.MIN_VALUE;
-        double curr;
-        MCTSNode node = null;
-
-        // Simply get all the children for given node, compute UCT for each, and select best one.
-        ArrayList<MCTSNode> children = n.getNodeChildren();
-        for (MCTSNode c : children) {
-            curr = computeUCT(c.getNodeState().getVisits(), c.getNodeState().getScore(), visits_parents);
-            if (curr > best) {
-                best = curr;
-                node = c;
-            }
-        }
-        return node;
-    }
-    //-------------------------------------------
-
-    /**
-     * Getters and setters for this class.
-     * @return
-     */
-
-    public int getTimeAllowed() {
-        return time_allowed;
-    }
-
-    public long getStartTime() {
-        return start_time;
-    }
-
-    public void setStartTime(long start_time) {
-        this.start_time = start_time;
-    }
-
-    public void setTimeAllowed(int time_allowed) {
-        this.time_allowed = time_allowed;
-    }
-
-    public int getMaxDepthAllowed(int time_allowed) {
-        if (time_allowed > 10) {
-            return 1000;
-        }
-        return Integer.MAX_VALUE;
-    }
-
-    public Map<Integer, ArrayList<SerializableNode>> getTree() {
-        return this.tree;
-    }
-    public void setTree(Map<Integer, ArrayList<SerializableNode>> t) {
-        this.tree = t;
-    }
-
-    public int getNumGamesPlayed() {
-        return this.games_played;
-    }
-
-    /**
-     * Helper functions to keep track of our MCTS learning.
-     * Used for debugging and optimization.
-     */
-
 
 
 }
