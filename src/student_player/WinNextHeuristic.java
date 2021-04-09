@@ -13,7 +13,7 @@ public class WinNextHeuristic {
     }
 
     /**
-     * Determine if a staightforwad winning move exists to be played next (dumb/simple heuristic).
+     * Determine if a straightforward winning move exists to be played next (dumb/simple heuristic).
      * @param pbs
      * @return
      */

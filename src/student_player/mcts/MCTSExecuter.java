@@ -240,14 +240,14 @@ public class MCTSExecuter {
     /**
      * Perform backprogation, updating visits and score values of nodes involved in a certain playout.
      * @param node
-     * @param playerNo
+     * @param winner
      */
     //-------------------------------------------
-    public void backpropagate(MCTSNode node, int playerNo) { // playerNo represents the winner from the playout
+    public void backpropagate(MCTSNode node, int winner) { // playerNo represents the winner from the playout
         MCTSNode temp = node; // use temp as a pointer for current visiting node
         while (temp != null) { // all the way back up to root of our MCTS
             temp.getNodeState().updateVisits(); // update visit scores for nodes used in playout
-            if (temp.getNodeState().getPlayerno() == playerNo) {
+            if (temp.getNodeState().getPlayerno() == winner) {
                 // increment score for winning player at each node along path
                 temp.getNodeState().updateScore(INCR_SCORE);
             }

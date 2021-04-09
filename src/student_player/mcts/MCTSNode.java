@@ -82,7 +82,6 @@ public class MCTSNode {
             this.children.add(c);
         }
     }
-
     public ArrayList<MCTSNode> getNodeChildren() {
         return this.children;
     }

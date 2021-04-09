@@ -14,7 +14,7 @@ public class MCTSState {
     /**
      * This MCTSState.java class aims to represent a particular PentagoBoardState along with a PentagoMove
      * to keep track of the visit count and win score for this state configuration. A MCTSState instance
-     * is be stored within a MCTSNode which themselves construct the tree used in the Monte Carlo Tree Search.
+     * is to be stored within a MCTSNode which themselves construct the tree used in the Monte Carlo Tree Search.
      */
 
     private double score;
@@ -65,7 +65,6 @@ public class MCTSState {
      * @return
      */
     public ArrayList<MCTSState> getExpandedNodeStates() {
-
         // To hold all the expanded states to be returned
         ArrayList<MCTSState> expanded_states = new ArrayList<>();
 
@@ -81,26 +80,14 @@ public class MCTSState {
             PentagoBoardState pbs_cloned = (PentagoBoardState) pbs.clone();
             MCTSState resulting_state = new MCTSState(pbs_cloned, pm);
 
-            // play the possible legal move from this state
+            //Play the possible legal move from this state
             resulting_state.setPlayerno(MyTools.getOpponent(pbs));
             resulting_state.getPbs().processMove(pm);
 
             // Add state to list of states derived from current node
             expanded_states.add(resulting_state);
-
         }
-
         return expanded_states;
-    }
-
-    /**
-     * Update the score at a node during backpropagation.
-     * @param add_score
-     */
-    public void updateScore(double add_score) {
-        if (this.score != Integer.MAX_VALUE) { // avoid overflow
-            this.score += add_score;
-        }
     }
 
     /**
@@ -133,6 +120,16 @@ public class MCTSState {
      */
     public void updateVisits() {
         this.visits++;
+    }
+
+    /**
+     * Update the score at a node during backpropagation.
+     * @param add_score
+     */
+    public void updateScore(double add_score) {
+        if (this.score != Integer.MAX_VALUE) { // avoid overflow
+            this.score += add_score;
+        }
     }
 
 
