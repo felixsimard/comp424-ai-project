@@ -1,19 +1,15 @@
-package student_player.mcts;
+package student_player;
 
 import pentago_twist.PentagoBoardState;
 import pentago_twist.PentagoMove;
-import student_player.MyTools;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Random;
 
 public class MCTSState {
 
     /**
      * This MCTSState.java class aims to represent a particular PentagoBoardState along with a PentagoMove
-     * to keep track of the visit count and win score for this state configuration. A MCTSState instance
+     * to keep track of the visit count and win score for a particular state configuration. A MCTSState instance
      * is to be stored within a MCTSNode which themselves construct the tree used in the Monte Carlo Tree Search.
      */
 
@@ -24,7 +20,7 @@ public class MCTSState {
     private int playerno;
 
     /**
-     * Constructors
+     * Constructors, based on the various forms we could construct a MCTSState
      */
     public MCTSState(PentagoBoardState pbs, PentagoMove pm) {
         this.pbs = pbs;
@@ -32,6 +28,8 @@ public class MCTSState {
     }
 
     public MCTSState(MCTSState s) {
+        // If we construct a MCTSState from a MCTSState, just copy over the s attributes
+        // to the newly constructed MCTSState
         this.score = s.getScore();
         this.visits = s.getVisits();
         this.pbs = s.getPbs();
@@ -40,16 +38,21 @@ public class MCTSState {
 
     /**
      * Trim moves from list which lead to same board state.
+     * This effectively reduces the branching factor at each step.
      */
     public static ArrayList<PentagoMove> trimLegalMoves(PentagoBoardState pbs, ArrayList<PentagoMove> all_moves) {
+        // Keep track of trimmed moves and seen states
         ArrayList<PentagoMove> trimmed_moves = new ArrayList<>();
         ArrayList<String> seen_states = new ArrayList<>();
-        for(PentagoMove pm : all_moves) {
+        // For each possible move, check if playing that move would lead to a board configuration which we can already
+        // reach from another move. If so, discard that move.
+        for (PentagoMove pm : all_moves) {
             PentagoBoardState pbscloned = (PentagoBoardState) pbs.clone();
             pbscloned.processMove(pm);
             // If we have never seen this state, then add it to our temp states list
-            // and save the move as a possible move in our trimmed list
-            if(!seen_states.contains(pbscloned.toString())) {
+            // and save the move as a possible move in our trimmed list.
+            // Use the .toString() method of a PentagoBoardState to compare board configurations.
+            if (!seen_states.contains(pbscloned.toString())) {
                 seen_states.add(pbscloned.toString());
                 trimmed_moves.add(pm);
             }
@@ -67,23 +70,17 @@ public class MCTSState {
     public ArrayList<MCTSState> getExpandedNodeStates() {
         // To hold all the expanded states to be returned
         ArrayList<MCTSState> expanded_states = new ArrayList<>();
-
         // Get all legal moves (some moves lead to the same board state)
         ArrayList<PentagoMove> all_moves = pbs.getAllLegalMoves();
-
         // Trim moves to reduce branching factor
         ArrayList<PentagoMove> trim_moves = MCTSState.trimLegalMoves(pbs, all_moves);
-
         for (PentagoMove pm : trim_moves) { // for each possible move, clone pbs, process move, add state to list
-
             // Clone
-            PentagoBoardState pbs_cloned = (PentagoBoardState) pbs.clone();
-            MCTSState resulting_state = new MCTSState(pbs_cloned, pm);
-
+            PentagoBoardState pbscloned = (PentagoBoardState) pbs.clone();
+            MCTSState resulting_state = new MCTSState(pbscloned, pm);
             //Play the possible legal move from this state
             resulting_state.setPlayerno(MyTools.getOpponent(pbs));
             resulting_state.getPbs().processMove(pm);
-
             // Add state to list of states derived from current node
             expanded_states.add(resulting_state);
         }
@@ -94,25 +91,16 @@ public class MCTSState {
      * Select and play a random move from a current board state.
      * Used during the rollout step.
      */
-    public void playRandomMove() {
-        Random rand = new Random();
-        ArrayList<PentagoMove> legalMoves = this.pbs.getAllLegalMoves();
-        // We can trim the set of all legal moves
+    public void randomMove() {
+        // Get and trim the set of all legal moves
+        ArrayList<PentagoMove> legalMoves = getPbs().getAllLegalMoves();
         legalMoves = MCTSState.trimLegalMoves(pbs, legalMoves);
-        PentagoMove randomMove = legalMoves.get(rand.nextInt(legalMoves.size()));
-        this.pbs.processMove(randomMove);
+        // Get our random move, choosing an int from 0 to legalMoves.size()
+        int randint = MyTools.getRandomNumber(0, legalMoves.size());
+        PentagoMove randomMove = legalMoves.get(randint);
+        getPbs().processMove(randomMove);
+        // Switch player for next random move to be played (recall this is used in the rollout phase)
         switchPlayer();
-    }
-
-    /**
-     * Switch between players.
-     */
-    public void switchPlayer() {
-        if (this.playerno == PentagoBoardState.WHITE) {
-            this.playerno = PentagoBoardState.BLACK; // white --> black
-        } else {
-            this.playerno = PentagoBoardState.WHITE; // black --> white
-        }
     }
 
     /**
@@ -124,6 +112,7 @@ public class MCTSState {
 
     /**
      * Update the score at a node during backpropagation.
+     *
      * @param add_score
      */
     public void updateScore(double add_score) {
@@ -132,9 +121,22 @@ public class MCTSState {
         }
     }
 
+    /**
+     * Switch between players.
+     * Opponent -> Agent
+     * Agent    -> Opponent
+     */
+    public void switchPlayer() {
+        int pno = getPlayerno();
+        if (pno == PentagoBoardState.WHITE) {
+            setPlayerno(PentagoBoardState.BLACK); // white --> black
+        } else {
+            setPlayerno(PentagoBoardState.WHITE); // white --> black
+        }
+    }
 
     /**
-     * Getters and setters (some are unused, generated using IntelliJ)
+     * Getters and setters (generated using IntelliJ).
      */
     public double getScore() {
         return this.score;
@@ -162,14 +164,6 @@ public class MCTSState {
 
     public void setScore(double s) {
         this.score = s;
-    }
-
-    public void setVisits(int v) {
-        this.visits = v;
-    }
-
-    public void setPm(PentagoMove pm) {
-        this.pm = pm;
     }
 
     public void setPbs(PentagoBoardState pbs) {

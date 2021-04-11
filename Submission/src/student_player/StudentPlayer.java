@@ -5,9 +5,10 @@ import boardgame.Move;
 import pentago_twist.PentagoMove;
 import pentago_twist.PentagoPlayer;
 import pentago_twist.PentagoBoardState;
-import student_player.mcts.MCTSExecuter;
 
-/** A player file submitted by a student. */
+/**
+ * A player file submitted by a student.
+ */
 public class StudentPlayer extends PentagoPlayer {
 
     /**
@@ -47,17 +48,18 @@ public class StudentPlayer extends PentagoPlayer {
         // Determine if our opponent could win on the next move. If could, block opponent.
         LoseNextHeuristic lnh = new LoseNextHeuristic();
         PentagoMove lose_next_move = lnh.getLoseNextMove(boardState);
-        if(lose_next_move != null) {
+        if (lose_next_move != null) {
             MyTools.print("Trying to avoid a loss by blocking opponent.");
             return lose_next_move;
         }
 
-        // MCTS - Find optimal move
+        // Find optimal move using Monte Carlo Tree Search (MCTS)
         MyTools.print("Run MCTS agent.");
         MCTSExecuter agent = new MCTSExecuter();
         agent.setStartTime(start_time);
         agent.setTimeAllowed(time_allowed);
 
+        // Get optimal move using MCTS
         Move myMove = agent.getOptimalMove(boardState);
 
         MyTools.print(String.format("Found move in %f", (System.currentTimeMillis() - start_time) / 1000f));

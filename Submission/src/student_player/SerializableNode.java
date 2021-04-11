@@ -1,4 +1,4 @@
-package student_player.mcts;
+package student_player;
 
 import java.io.Serializable;
 

@@ -1,35 +1,33 @@
-package student_player.mcts;
+package student_player;
 
 import boardgame.Board;
 import boardgame.Move;
 import pentago_twist.PentagoBoardState;
 import pentago_twist.PentagoMove;
-import student_player.MyTools;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Reference used during the construction of the MCTS classes:
  * https://www.baeldung.com/java-monte-carlo-tree-search
- * + class lecture notes
+ * + class lecture notes.
+ * See report for references and documentation.
  */
 
 public class MCTSExecuter {
 
     // Constants
-    private static int INCR_SCORE = 100;
-    private static final double SCALING_CONSTANT = Math.sqrt(1); // UCT scaling constant
+    private static int INCR_SCORE = 50;
+    private static final double SCALING_CONSTANT = Math.sqrt(2); // UCT scaling constant
     private int OPPONENT;
     private int AGENT;
     private long start_time;
     private int time_allowed;
-    private int games_played = 0;
 
-    // Serialization
+    // Serialization (not used in final implementation)
     private static String TREE_FILE_NAME = "./data/tree.ser";
     public Map<Integer, ArrayList<SerializableNode>> tree;
 
@@ -39,7 +37,6 @@ public class MCTSExecuter {
     public MCTSExecuter() {
         super();
         MyTools.print("Initializing MCTSExecuter agent.");
-
     }
 
     /**
@@ -63,7 +60,7 @@ public class MCTSExecuter {
         // Init root node of our MCTS, with no children
         MCTSNode root = new MCTSNode(pbs, null);
         OPPONENT = MyTools.getOpponent(pbs);
-        AGENT = MyTools.getAgent(pbs);
+        AGENT = MyTools.getAgentTurnNum(pbs);
         root.getNodeState().setPlayerno(OPPONENT);
 
         while (System.currentTimeMillis() < endtime) { // given time allowed at each move
@@ -86,7 +83,7 @@ public class MCTSExecuter {
             ArrayList<MCTSNode> promising_children = selected.getNodeChildren();
             if (promising_children.size() > 0) { // maybe have children by expansion at previous step
                 // simplest heuristic, get a random child of the promising expanded node to rollout
-                simulate_node = selected.getChildRandom();
+                simulate_node = selected.selectUsingDefaultPolicy();
             }
             playout_result = rollout(simulate_node); // play a simulation
 
@@ -113,7 +110,7 @@ public class MCTSExecuter {
 
         // Finally, determine node with the highest score (visits).
         // This node will be used as our next move.
-        MCTSNode chosen = root.getBestChild();
+        MCTSNode chosen = root.pickChildWithMostVisits();
         PentagoMove next_move = chosen.getNodeState().getPm();
 
         return next_move;
@@ -130,14 +127,15 @@ public class MCTSExecuter {
 
     /**
      * Determine the most promising child (tree leaf) from a given start node to explore based on UCT computations.
+     *
      * @param start_node
      * @return
      */
     public MCTSNode select(MCTSNode start_node) {
         MCTSNode n = start_node;
-        // get all the way down to a leaf node in our mcts tree
+        // Get all the way down to a leaf node in our mcts tree
         while (n.getNodeChildren().size() != 0) { // as long as we have children to select from to expand
-            n = getBestNodeUCT(n); // will recurse on the most promising node at each iteration!
+            n = selectUsingTreePolicy(n); // will recurse on the most promising node at each iteration!
         }
         // return leaf node from our mcts tree which has the best UCT value
         return n;
@@ -148,7 +146,7 @@ public class MCTSExecuter {
      */
     //-------------------------------------------
     // Compute UCT
-    public double computeUCT(int visit_at_node, double node_score, int total_visits) {
+    public double compute_uct(int visit_at_node, double node_score, int total_visits) {
         if (visit_at_node == 0) {
             return Integer.MAX_VALUE;
         }
@@ -159,7 +157,7 @@ public class MCTSExecuter {
     }
 
     // Select best child node to expand
-    public MCTSNode getBestNodeUCT(MCTSNode n) {
+    public MCTSNode selectUsingTreePolicy(MCTSNode n) {
         // Parent
         int visits_parents = n.getNodeState().getVisits();
         // For comparison
@@ -169,7 +167,7 @@ public class MCTSExecuter {
         // Simply get all the children for given node, compute UCT for each, and select best one.
         ArrayList<MCTSNode> children = n.getNodeChildren();
         for (MCTSNode c : children) {
-            curr = computeUCT(c.getNodeState().getVisits(), c.getNodeState().getScore(), visits_parents);
+            curr = compute_uct(c.getNodeState().getVisits(), c.getNodeState().getScore(), visits_parents);
             if (curr > best) { // if better than current best, save node
                 best = curr;
                 node = c;
@@ -181,6 +179,7 @@ public class MCTSExecuter {
 
     /**
      * Expand a promising node which is not a leaf (no winner yet).
+     *
      * @param node
      */
     //-------------------------------------------
@@ -191,26 +190,25 @@ public class MCTSExecuter {
             // For each expanded node states, add them to the monte carlo search tree
             MCTSNode n = new MCTSNode(s);
             n.setNodeParent(node);
-            // set player no to opponent for child
+            // Set player no to opponent for child
             n.getNodeState().setPlayerno(MyTools.getOpponent(node.getNodeState().getPbs()));
-
             // Add this newly created expanded state to list of children of parent node
             ArrayList<MCTSNode> children = node.getNodeChildren();
             children.add(n);
             node.setNodeChildren(children);
         }
-        // now, our 'node' has the expanded nodes as its children
+        // Now, our node has the expanded nodes as its children
     }
     //-------------------------------------------
 
     /**
      * Run a simulation to determine outcome of a rollout.
+     *
      * @param node
      * @return
      */
     //-------------------------------------------
     public int rollout(MCTSNode node) {
-
         // Temp node and state
         MCTSNode temp_node = new MCTSNode(node);
         MCTSState temp_state = temp_node.getNodeState();
@@ -220,7 +218,7 @@ public class MCTSExecuter {
         while (winner == Board.NOBODY) {
             temp_state.switchPlayer();
             // play random moves
-            temp_state.playRandomMove();
+            temp_state.randomMove();
             // update winner
             winner = temp_state.getPbs().getWinner();
         }
@@ -239,6 +237,7 @@ public class MCTSExecuter {
 
     /**
      * Perform backprogation, updating visits and score values of nodes involved in a certain playout.
+     *
      * @param node
      * @param winner
      */
@@ -261,16 +260,16 @@ public class MCTSExecuter {
      * Getters and setters for this class.
      */
 
-    public int getTimeAllowed() {
-        return time_allowed;
-    }
-
     public long getStartTime() {
         return start_time;
     }
 
     public void setStartTime(long start_time) {
         this.start_time = start_time;
+    }
+
+    public int getTimeAllowed() {
+        return time_allowed;
     }
 
     public void setTimeAllowed(int time_allowed) {
