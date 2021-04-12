@@ -49,3 +49,6 @@
 49,RandomPlayer,260865674,1,260865674,9,game00049.log,
 50,RandomPlayer,260865674,1,260865674,8,game00050.log,
 51,RandomPlayer,260865674,0,RandomPlayer,11,game00051.log,
+52,RandomPlayer,260865674,1,260865674,12,game00052.log,
+53,260865674,RandomPlayer,0,260865674,9,game00053.log,
+54,RandomPlayer,260865674,1,260865674,7,game00054.log,
